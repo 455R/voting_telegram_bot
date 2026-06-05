@@ -1,1 +1,68 @@
-// DBML schema
+Table users {
+  id integer [pk, increment]
+  telegram_id integer [unique, not null]
+  username text
+  full_name text
+  is_admin integer [not null, default: 0]
+  created_at text [not null]
+}
+
+Table polls {
+  id integer [pk, increment]
+  creator_id integer [not null]
+  title text [not null]
+  description text
+  status text [not null, default: 'draft']
+  is_anonymous integer [not null, default: 1]
+  created_at text [not null]
+}
+
+Table questions {
+  id integer [pk, increment]
+  poll_id integer [not null]
+  text text [not null]
+  question_type text [not null, default: 'single']
+  position integer [not null, default: 1]
+}
+
+Table options {
+  id integer [pk, increment]
+  question_id integer [not null]
+  text text [not null]
+  position integer [not null, default: 1]
+}
+
+Table votes {
+  id integer [pk, increment]
+  user_id integer [not null]
+  poll_id integer [not null]
+  question_id integer [not null]
+  option_id integer [not null]
+  created_at text [not null]
+}
+
+Table poll_settings {
+  id integer [pk, increment]
+  poll_id integer [unique, not null]
+  allow_revote integer [not null, default: 0]
+  show_results_after_vote integer [not null, default: 1]
+  require_registration integer [not null, default: 0]
+}
+
+Table result_exports {
+  id integer [pk, increment]
+  poll_id integer [not null]
+  export_type text [not null]
+  file_path text
+  created_at text [not null]
+}
+
+Ref: users.id < polls.creator_id
+Ref: polls.id < questions.poll_id
+Ref: questions.id < options.question_id
+Ref: users.id < votes.user_id
+Ref: polls.id < votes.poll_id
+Ref: questions.id < votes.question_id
+Ref: options.id < votes.option_id
+Ref: polls.id - poll_settings.poll_id
+Ref: polls.id < result_exports.poll_id
